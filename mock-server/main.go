@@ -22,7 +22,7 @@ type request struct {
 }
 
 type response struct {
-	StatusCode string
+	StatusCode int
 	Body       string
 }
 
@@ -56,18 +56,20 @@ func loadEndpoints() {
 			"",
 			"GET",
 			request{},
-			response{Body: "default"},
+			response{StatusCode: http.StatusOK, Body: "default"},
 		},
 		"/teste1": endpoint{
 			"Description 1",
 			"",
 			"GET",
 			request{},
-			response{Body: "bodiiii"},
+			response{StatusCode: http.StatusInternalServerError, Body: "bodiiii"},
 		},
 	}
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(endpoints[r.URL.Path].Response.Body)
+	endpoint := endpoints[r.URL.Path]
+	w.WriteHeader(endpoint.Response.StatusCode)
+	json.NewEncoder(w).Encode(endpoint.Response.Body)
 }
